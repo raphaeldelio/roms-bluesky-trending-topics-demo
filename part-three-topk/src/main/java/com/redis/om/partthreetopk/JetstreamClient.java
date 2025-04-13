@@ -2,7 +2,6 @@ package com.redis.om.partthreetopk;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.redis.om.partonecountminsketch.RedisService;
 import jakarta.websocket.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

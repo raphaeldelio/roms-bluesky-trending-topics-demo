@@ -1,6 +1,5 @@
 package com.redis.om.partthreetopk;
 
-import com.redis.om.spring.client.RedisModulesClient;
 import com.redis.om.spring.ops.RedisModulesOperations;
 import com.redis.om.spring.ops.pds.BloomOperations;
 import com.redis.om.spring.ops.pds.CountMinSketchOperations;
@@ -14,13 +13,11 @@ import java.util.Set;
 @Service
 public class RedisService {
     private final JedisPooled jedisPooled;
-    private final RedisModulesOperations<String> redisModulesOperations;
     private final CountMinSketchOperations<String> countMinSketchOperations;
     private final BloomOperations<String> bloomOperations;
     private final TopKOperations<String> topKOperations;
 
-    public RedisService(RedisModulesClient redisModulesClient, RedisModulesOperations<String> redisModulesOperations) {
-        this.redisModulesOperations = redisModulesOperations;
+    public RedisService(RedisModulesOperations<String> redisModulesOperations) {
         this.jedisPooled = new JedisPooled();
         this.countMinSketchOperations = redisModulesOperations.opsForCountMinSketch();
         this.bloomOperations = redisModulesOperations.opsForBloom();
@@ -76,8 +73,8 @@ public class RedisService {
     }
 
     // TopK methods
-    public void initTopK(String key, int topK, int width, int depth, double decay) {
-        topKOperations.createFilter(key, topK, width, depth, decay);
+    public void initTopK(String key, int topK) {
+        topKOperations.createFilter(key, topK);
     }
 
     public void topkIncrBy(String key, String term, int incrBy) {

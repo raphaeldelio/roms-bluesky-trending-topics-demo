@@ -22,7 +22,7 @@ Count-Min Sketch is a probabilistic data structure for approximate frequency cou
 3. **Implementation Details**
    ```java
    // Initialize CMS with width and depth parameters
-   redisService.createCms("words-bucket-cms:" + timeBucket, 1000, 7);
+   redisService.createCms("words-bucket-cms:" + timeBucket, 2000, 7);
    
    // Track word frequencies
    redisService.cmsIncrBy("words-bucket-cms:" + timeBucket, word, 1);
@@ -32,8 +32,9 @@ Count-Min Sketch is a probabilistic data structure for approximate frequency cou
    ```
 
 4. **Memory Comparison**
-   - **Probabilistic (CMS)**: Fixed memory usage of ~7KB (1000 width × 7 depth)
-   - **Deterministic (ZSET)**: Memory grows linearly with unique words
+   - **Probabilistic (CMS)**: Fixed memory usage of ~55KB (2000 width × 7 depth)
+   - **Deterministic (ZSET)**: Memory grows linearly with unique words 
+     - Example: ~23000 unique words require ~2MB
    - For comparison, both approaches are implemented side-by-side
 
 5. **Advantages**

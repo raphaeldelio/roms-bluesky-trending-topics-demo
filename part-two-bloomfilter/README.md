@@ -31,8 +31,7 @@ A Bloom Filter is a space-efficient probabilistic data structure used to test wh
 
 3. **Memory Comparison**
    - **Probabilistic (Bloom Filter)**: ~2KB for 1300 words with 1% false positive rate
-   - **Deterministic (Set)**: Grows linearly with number of stopwords (~26KB for 1300 words)
-   - Combined with CMS, the probabilistic approach uses ~9KB total
+   - **Deterministic (Set)**: Grows linearly with number of stopwords (~59KB for 1300 words)
 
 4. **Enhanced Workflow**
    - Text data from stream → Clean and normalize → Filter stopwords with Bloom Filter → Count with CMS → Basic trending analysis
