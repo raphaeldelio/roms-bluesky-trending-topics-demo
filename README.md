@@ -42,13 +42,15 @@ Each part is implemented as a separate Spring Boot application, showing how the 
 2. Navigate to the specific module you want to run
 3. Start the Spring Boot application with `./mvnw spring:run`
 
-## Memory Comparison
+## Memory Comparison (streaming per month time buckets of 1 minute)
 
-| Data Structure    | Probabilistic     | Deterministic     |
-|-------------------|-------------------|-------------------|
-| Counting (CMS)    | ~7KB fixed        | Grows with data   |
-| Filtering (Bloom) | ~2KB fixed        | ~26KB for 1300 words |
-| Ranking (TopK)    | ~12KB fixed       | Grows with data   |
-| **Total**         | **~21KB fixed**   | **Potentially GBs** |
+| Purpose             | Probabilistic (Approx.)     | Deterministic (Approx.)  |
+|---------------------|-----------------------------|---------------------------|
+| Counting            | ~2.3GB (Count-Min Sketch)   | ~87GB (Sorted Sets)       |
+| Filtering           | ~2KB (Bloom Filter)         | ~59KB (Set)               |
+| Ranking             | ~3KB (TopK)                 | ~30MB (Sorted Set)        |
+| Unique Terms Track  | ~36MB (Set)                 | –                         |
+| **Total**           | **~2.34GB**                 | **~87GB**                 |
+
 
 Check each module's README for detailed explanations of the implementation. 
