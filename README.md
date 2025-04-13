@@ -38,7 +38,7 @@ Each part is implemented as a separate Spring Boot application, showing how the 
 
 ## Getting Started
 
-1. Each module requires Redis with RedisBloom module installed
+1. Each module requires Redis 8 installed
 2. Navigate to the specific module you want to run
 3. Start the Spring Boot application with `./mvnw spring:run`
 
