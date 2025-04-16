@@ -18,7 +18,7 @@ public class RedisService {
     private final TopKOperations<String> topKOperations;
 
     public RedisService(RedisModulesOperations<String> redisModulesOperations) {
-        this.jedisPooled = new JedisPooled();
+        this.jedisPooled = new JedisPooled("localhost", 6381);
         this.countMinSketchOperations = redisModulesOperations.opsForCountMinSketch();
         this.bloomOperations = redisModulesOperations.opsForBloom();
         this.topKOperations = redisModulesOperations.opsForTopK();
@@ -73,8 +73,8 @@ public class RedisService {
     }
 
     // TopK methods
-    public void initTopK(String key, int topK) {
-        topKOperations.createFilter(key, topK);
+    public void initTopK(String key, int topK, int width, int depth, double decay) {
+        topKOperations.createFilter(key, topK, width, depth, decay);
     }
 
     public void topkIncrBy(String key, String term, int incrBy) {

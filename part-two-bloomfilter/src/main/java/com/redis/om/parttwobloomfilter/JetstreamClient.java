@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
 @ClientEndpoint
@@ -25,6 +26,7 @@ public class JetstreamClient {
     private Session session;
     private URI endpointURI;
     private boolean manuallyClosed = false;
+    private final AtomicBoolean reconnecting = new AtomicBoolean(false);
 
 
     public JetstreamClient(RedisService redisService, ResourceLoader resourceLoader) {
@@ -39,12 +41,12 @@ public class JetstreamClient {
         // read source and store it in the list
         ObjectMapper objectMapper = new ObjectMapper();
         List<String> stopwords = objectMapper.readValue(resource.getInputStream(), List.class);
-        logger.info("Stopwords loaded: " + stopwords.size());
 
         if (!redisService.exists("stopwords-bf")) {
             redisService.createBloomFilter("stopwords-bf", 1300, 0.01);
             redisService.addMultiToBloomFilter("stopwords-bf", stopwords.toArray(new String[0]));
             redisService.sAdd("stopwords-set", stopwords.toArray(new String[0]));
+            logger.info("Stopwords loaded: " + stopwords.size());
         }
     }
 
@@ -78,14 +80,15 @@ public class JetstreamClient {
                     }
                 }
 
+                String timeBucket = java.time.LocalDateTime.now().withSecond(0).withNano(0).toString();
+                ensureCms(timeBucket);
                 for (int i = 0; i < words.size(); i++) {
                     String word = words.get(i);
-                    String timeBucket = java.time.LocalDateTime.now().withSecond(0).withNano(0).toString();
+
 
                     // Track the single word
                     redisService.sAdd("words-set", word);
                     redisService.zIncrBy("words-bucket-zset:" + timeBucket, word, 1);
-                    ensureCms(timeBucket);
                     redisService.cmsIncrBy("words-bucket-cms:" + timeBucket, word, 1);
 
                     // Word with previous
@@ -93,7 +96,6 @@ public class JetstreamClient {
                         String combo = words.get(i - 1) + " " + word;
                         redisService.sAdd("words-set", combo);
                         redisService.zIncrBy("words-bucket-zset:" + timeBucket, combo, 1);
-                        ensureCms(timeBucket);
                         redisService.cmsIncrBy("words-bucket-cms:" + timeBucket, combo, 1);
                     }
 
@@ -102,7 +104,6 @@ public class JetstreamClient {
                         String combo = word + " " + words.get(i + 1);
                         redisService.sAdd("words-set", combo);
                         redisService.zIncrBy("words-bucket-zset:" + timeBucket, combo, 1);
-                        ensureCms(timeBucket);
                         redisService.cmsIncrBy("words-bucket-cms:" + timeBucket, combo, 1);
                     }
                 }
@@ -137,14 +138,17 @@ public class JetstreamClient {
     }
 
     private void tryReconnect() {
+        if (reconnecting.getAndSet(true)) return; // already reconnecting
+
         new Thread(() -> {
             int attempts = 0;
             while (!manuallyClosed) {
                 try {
-                    Thread.sleep(Math.min(30000, 2000 * ++attempts)); // exponential up to 30s
+                    Thread.sleep(Math.min(30000, 2000 * ++attempts));
                     logger.info("Trying to reconnect... attempt {}", attempts);
                     connect();
                     logger.info("Reconnected!");
+                    reconnecting.set(false); // done
                     break;
                 } catch (Exception e) {
                     System.err.println("Reconnect failed: " + e.getMessage());

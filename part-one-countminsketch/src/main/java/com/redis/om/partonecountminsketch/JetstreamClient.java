@@ -56,14 +56,15 @@ public class JetstreamClient {
                                         .trim()
                         ).toList();
 
+                String timeBucket = LocalDateTime.now().withSecond(0).withNano(0).toString();
+                ensureCms(timeBucket);
+
                 for (int i = 0; i < words.size(); i++) {
                     String word = words.get(i);
-                    String timeBucket = LocalDateTime.now().withSecond(0).withNano(0).toString();
 
                     // Track the single word
                     redisService.sAdd("words-set", word);
                     redisService.zIncrBy("words-bucket-zset:" + timeBucket, word, 1);
-                    ensureCms(timeBucket);
                     redisService.cmsIncrBy("words-bucket-cms:" + timeBucket, word, 1);
 
                     // Word with previous
@@ -71,7 +72,6 @@ public class JetstreamClient {
                         String combo = words.get(i - 1) + " " + word;
                         redisService.sAdd("words-set", combo);
                         redisService.zIncrBy("words-bucket-zset:" + timeBucket, combo, 1);
-                        ensureCms(timeBucket);
                         redisService.cmsIncrBy("words-bucket-cms:" + timeBucket, combo, 1);
                     }
 
@@ -80,7 +80,6 @@ public class JetstreamClient {
                         String combo = word + " " + words.get(i + 1);
                         redisService.sAdd("words-set", combo);
                         redisService.zIncrBy("words-bucket-zset:" + timeBucket, combo, 1);
-                        ensureCms(timeBucket);
                         redisService.cmsIncrBy("words-bucket-cms:" + timeBucket, combo, 1);
                     }
                 }

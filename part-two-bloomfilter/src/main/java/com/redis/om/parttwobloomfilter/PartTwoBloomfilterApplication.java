@@ -14,8 +14,6 @@ public class PartTwoBloomfilterApplication {
     @Bean
     public CommandLineRunner run(
             JetstreamClient client) {
-        return args -> {
-            client.start("wss://jetstream2.us-east.bsky.network/subscribe?wantedCollections=app.bsky.feed.post"); // this is the firehose, replace with Jetstream URL if needed
-        };
+        return args -> client.start("wss://jetstream2.us-west.bsky.network/subscribe?wantedCollections=app.bsky.feed.post");
     }
 }

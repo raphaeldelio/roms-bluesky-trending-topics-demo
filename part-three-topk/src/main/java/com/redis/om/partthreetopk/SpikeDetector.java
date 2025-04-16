@@ -30,7 +30,7 @@ public class SpikeDetector {
 
         // Ensure TopK exists
         if (!redisService.exists("spiking-topk")) {
-            redisService.initTopK("spiking-topk", 40, 2000, 6, 0.9);
+            redisService.initTopK("spiking-topk", 10, 3000, 12, 0.9);
         }
 
         for (String term : terms) {

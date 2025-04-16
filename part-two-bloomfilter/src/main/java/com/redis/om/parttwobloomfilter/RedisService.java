@@ -3,19 +3,20 @@ package com.redis.om.parttwobloomfilter;
 import com.redis.om.spring.ops.RedisModulesOperations;
 import com.redis.om.spring.ops.pds.BloomOperations;
 import com.redis.om.spring.ops.pds.CountMinSketchOperations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.JedisPooled;
 
-import java.util.Set;
-
 @Service
 public class RedisService {
+    private final static Logger logger = LoggerFactory.getLogger(RedisService.class);
     private final JedisPooled jedisPooled;
     private final CountMinSketchOperations<String> countMinSketchOperations;
     private final BloomOperations<String> bloomOperations;
 
     public RedisService(RedisModulesOperations<String> redisModulesOperations) {
-        this.jedisPooled = new JedisPooled();
+        this.jedisPooled = new JedisPooled("localhost", 6380);
         this.countMinSketchOperations = redisModulesOperations.opsForCountMinSketch();
         this.bloomOperations = redisModulesOperations.opsForBloom();
     }
@@ -36,23 +37,44 @@ public class RedisService {
 
     // Count-Min Sketch methods
     public void createCms(String key, int width, int depth) {
-        countMinSketchOperations.cmsInitByDim(key, width, depth);
+        try {
+            countMinSketchOperations.cmsInitByDim(key, width, depth);
+        } catch (Exception e) {
+            logger.error("Error creating Count-Min Sketch: ", e);
+        }
     }
 
     public void cmsIncrBy(String key, String item, int count) {
-        countMinSketchOperations.cmsIncrBy(key, item, count);
+        try {
+            countMinSketchOperations.cmsIncrBy(key, item, count);
+        } catch (Exception e) {
+            logger.error("Error creating Count-Min Sketch: ", e);
+        }
     }
 
     // Bloom Filter
     public void createBloomFilter(String key, int expectedItems, double falsePositiveRate) {
-        bloomOperations.createFilter(key, expectedItems, falsePositiveRate);
+        try {
+            bloomOperations.createFilter(key, expectedItems, falsePositiveRate);
+        } catch (Exception e) {
+            logger.error("Error creating Bloom Filter: ", e);
+        }
     }
 
     public void addMultiToBloomFilter(String key, String... items) {
-        bloomOperations.addMulti(key, items);
+        try {
+            bloomOperations.addMulti(key, items);
+        } catch (Exception e) {
+            logger.error("Error adding items to Bloom Filter: ", e);
+        }
     }
 
     public boolean isInBloomFilter(String key, String item) {
-        return bloomOperations.exists(key, item);
+        try {
+            return bloomOperations.exists(key, item);
+        } catch (Exception e) {
+            logger.error("Error checking Bloom Filter: ", e);
+            return false;
+        }
     }
 }

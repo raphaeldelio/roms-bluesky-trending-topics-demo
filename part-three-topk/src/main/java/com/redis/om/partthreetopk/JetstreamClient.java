@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,10 +27,6 @@ public class JetstreamClient {
     private URI endpointURI;
     private boolean manuallyClosed = false;
 
-    private List<String> stopwords;
-
-
-
     public JetstreamClient(RedisService redisService, ResourceLoader resourceLoader) {
         this.redisService = redisService;
         this.resourceLoader = resourceLoader;
@@ -41,7 +38,7 @@ public class JetstreamClient {
         var resource = resourceLoader.getResource("classpath:stopwords-en.json");
         // read source and store it in the list
         ObjectMapper objectMapper = new ObjectMapper();
-        stopwords = objectMapper.readValue(resource.getInputStream(), List.class);
+        List<String> stopwords = objectMapper.readValue(resource.getInputStream(), List.class);
         logger.info("Stopwords loaded: " + stopwords.size());
 
         if (!redisService.exists("stopwords-bf")) {
@@ -81,14 +78,15 @@ public class JetstreamClient {
                     }
                 }
 
+                String timeBucket = LocalDateTime.now().withSecond(0).withNano(0).toString();
+                ensureCms(timeBucket);
+
                 for (int i = 0; i < words.size(); i++) {
                     String word = words.get(i);
-                    String timeBucket = java.time.LocalDateTime.now().withSecond(0).withNano(0).toString();
 
                     // Track the single word
                     redisService.sAdd("words-set", word);
                     redisService.zIncrBy("words-bucket-zset:" + timeBucket, word, 1);
-                    ensureCms(timeBucket);
                     redisService.cmsIncrBy("words-bucket-cms:" + timeBucket, word, 1);
 
                     // Word with previous
@@ -96,7 +94,6 @@ public class JetstreamClient {
                         String combo = words.get(i - 1) + " " + word;
                         redisService.sAdd("words-set", combo);
                         redisService.zIncrBy("words-bucket-zset:" + timeBucket, combo, 1);
-                        ensureCms(timeBucket);
                         redisService.cmsIncrBy("words-bucket-cms:" + timeBucket, combo, 1);
                     }
 
@@ -105,7 +102,6 @@ public class JetstreamClient {
                         String combo = word + " " + words.get(i + 1);
                         redisService.sAdd("words-set", combo);
                         redisService.zIncrBy("words-bucket-zset:" + timeBucket, combo, 1);
-                        ensureCms(timeBucket);
                         redisService.cmsIncrBy("words-bucket-cms:" + timeBucket, combo, 1);
                     }
                 }

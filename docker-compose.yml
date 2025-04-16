@@ -1,8 +1,23 @@
 version: '3.8'
 
 services:
-  redis:
+  redis-countminsketch:
     image: redis:8.0-M04  # Use Redis 8.0
+    container_name: countminsketch
     restart: always
     ports:
       - "6379:6379"
+
+  redis-bloomfilter:
+    image: redis:8.0-M04  # Use Redis 8.0
+    container_name: bloomfilter
+    restart: always
+    ports:
+      - "6380:6379"
+
+  redis-topk:
+    image: redis:8.0-M04  # Use Redis 8.0
+    container_name: topk
+    restart: always
+    ports:
+      - "6381:6379"
