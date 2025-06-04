@@ -16,7 +16,7 @@ public class RedisService {
     private final BloomOperations<String> bloomOperations;
 
     public RedisService(RedisModulesOperations<String> redisModulesOperations) {
-        this.jedisPooled = new JedisPooled("localhost", 6380);
+        this.jedisPooled = new JedisPooled("localhost", 6379);
         this.countMinSketchOperations = redisModulesOperations.opsForCountMinSketch();
         this.bloomOperations = redisModulesOperations.opsForBloom();
     }

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Redis Probabilistic Data Structures</title>
+        <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&display=swap"
+              rel="stylesheet">
+        <link rel="stylesheet" href="/css/styles.css">
+    </head>
+    <body>
+        <h1>Redis Probabilistic Data Structures</h1>
+
+        <div style="text-align: center; margin-bottom: 20px;">
+            <button class="toggle-btn" data-target="countmin-column">Count-Min Sketch</button>
+            <button class="toggle-btn" data-target="bloom-column">Bloom Filters</button>
+            <button class="toggle-btn" data-target="topk-column">Top K</button>
+        </div>
+
+        <div class="container">
+            <!-- Count-Min Sketch Section -->
+            <div class="column" id="countmin-column">
+                <h3>Count-Min Sketch</h3>
+                <div class="data-structure-container">
+                    <div class="data-structure-column">
+                        <h4>Count-Min Sketch</h4>
+                        <select id="countmin-select" class="data-structure-select">
+                            <!-- Options will be populated dynamically -->
+                        </select>
+                        <div id="countmin-data"></div>
+                    </div>
+                    <div class="data-structure-column">
+                        <h4>Sorted Set</h4>
+                        <select id="countmin-sortedset-select" class="data-structure-select">
+                            <!-- Options will be populated dynamically -->
+                        </select>
+                        <div id="countmin-sortedset-data"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bloom Filter Section -->
+            <div class="column" id="bloom-column" style="display: none">
+                <h3>Bloom Filters</h3>
+                <div class="data-structure-container">
+                    <div class="data-structure-column">
+                        <h4>Bloom Filter</h4>
+                        <select id="bloom-select" class="data-structure-select">
+                            <!-- Options will be populated dynamically -->
+                        </select>
+
+                        <!-- Bloom Filter Check Form -->
+                        <div class="bloom-check-container" style="margin-top: 20px;">
+                            <h4>Check Item in Bloom Filter</h4>
+                            <div class="bloom-check-form">
+                                <input type="text" id="bloom-check-input" placeholder="Enter item to check" class="bloom-check-input">
+                                <button id="bloom-check-button" class="bloom-check-button">Check</button>
+                            </div>
+                            <div id="bloom-check-result" class="bloom-check-result"></div>
+                        </div>
+                    </div>
+                    <div class="data-structure-column">
+                        <h4>Set</h4>
+                        <select id="bloom-set-select" class="data-structure-select">
+                            <!-- Options will be populated dynamically -->
+                        </select>
+                        <div id="bloom-set-data"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top K Section -->
+            <div class="column" id="topk-column" style="display: none">
+                <h3>Top K</h3>
+                <div class="data-structure-container">
+                    <div class="data-structure-column">
+                        <h4>Top K</h4>
+                        <select id="topk-select" class="data-structure-select">
+                            <!-- Options will be populated dynamically -->
+                        </select>
+                        <div id="topk-data"></div>
+                    </div>
+                    <div class="data-structure-column">
+                        <h4>Sorted Set</h4>
+                        <select id="topk-sortedset-select" class="data-structure-select">
+                            <!-- Options will be populated dynamically -->
+                        </select>
+                        <div id="topk-sortedset-data"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Powered by <img src="/images/redis-logo.png" alt="Redis Logo"></p>
+        </footer>
+
+        <script src="/js/script.js"></script>
+    </body>
+</html>

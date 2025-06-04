@@ -18,7 +18,7 @@ public class SpikeDetector {
         this.redisService = redisService;
     }
 
-    @Scheduled(fixedRate = 60_000)
+    @Scheduled(fixedRate = 60_000 * 5)
     public void computeSpikes() {
         logger.info("Calculating spikes...");
         String now = bucketKey(0);
@@ -29,8 +29,10 @@ public class SpikeDetector {
         Set<String> terms = redisService.sMembers("words-set");
 
         // Ensure TopK exists
-        if (!redisService.exists("spiking-topk")) {
-            redisService.initTopK("spiking-topk", 10, 3000, 12, 0.9);
+        String currentBucket = getCurrentTimeBucket();
+        String topKKey = "spiking-topk:" + currentBucket;
+        if (!redisService.exists(topKKey)) {
+            redisService.initTopK(topKKey, 10, 3000, 12, 0.9);
         }
 
         for (String term : terms) {
@@ -43,10 +45,10 @@ public class SpikeDetector {
                 double spikeScore = (current - pastAvg) / (double) pastAvg;
 
                 // Push into ZSET for full scoring
-                redisService.zIncrBy("spiking-now", term, spikeScore);
+                redisService.zIncrBy("spiking-zset:" + currentBucket, term, spikeScore);
 
                 // Push into TopK (rank only, no score)
-                redisService.topkIncrBy("spiking-topk", term, (int) spikeScore);
+                redisService.topkIncrBy(topKKey, term, (int) spikeScore);
             }
         }
 
@@ -57,5 +59,9 @@ public class SpikeDetector {
         return "words-bucket-cms:" + LocalDateTime.now()
                 .minusMinutes(minutesAgo)
                 .withSecond(0).withNano(0);
+    }
+
+    private String getCurrentTimeBucket() {
+        return LocalDateTime.now().withSecond(0).withNano(0).toString();
     }
 }
