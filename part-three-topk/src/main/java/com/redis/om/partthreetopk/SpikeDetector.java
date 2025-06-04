@@ -18,7 +18,7 @@ public class SpikeDetector {
         this.redisService = redisService;
     }
 
-    @Scheduled(fixedRate = 60_000 * 5)
+    @Scheduled(fixedRate = 60_000)
     public void computeSpikes() {
         logger.info("Calculating spikes...");
         String now = bucketKey(0);
